@@ -1,0 +1,13 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: lightgray;
+  display: flex;
+  justify-content: center;
+  justify-items: center;
+}
+
+#board {
+  background-color: rgb(162, 122, 68);
+}
