@@ -9,15 +9,8 @@ class Board {
   createBoard() {
     for (let i = 1; i <= 8; i++) {
       for (let j = 1; j <= 8; j++) {
-        let color = (i + j) % 2 === 0 ? "black" : "white";
-
-        let space = {
-          color,
-          i,
-          j,
-          width: this.width / 8,
-          height: this.height / 8,
-        };
+        let color = (i + j) % 2 === 0 ? "black" : "rgb(162, 122, 68)";
+        const space = new Space(color, this.width / 8, this.height / 8, i, j);
         this.spaces.push(space);
       }
     }

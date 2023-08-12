@@ -1,13 +1,23 @@
-html,
-body {
+html {
   margin: 0;
   padding: 0;
-  background-color: lightgray;
+  background-color: darkgray;
   display: flex;
   justify-content: center;
   justify-items: center;
+  vertical-align: center;
+  height: 100vh;
+}
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  vertical-align: center;
 }
 
 #board {
-  background-color: rgb(162, 122, 68);
+  display: flex;
+  justify-self: center;
+  border: 5px solid black;
+  box-shadow: 10px 10px 10px rgba(85, 85, 85, 0.484);
 }
