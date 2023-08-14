@@ -1,32 +1,107 @@
 class Piece {
-  constructor(type, ctx, x, y, color) {
+  constructor(type, ctx, x, y, color, size) {
     this.type = type;
     this.ctx = ctx;
     this.x = x;
     this.y = y;
     this.color = color;
-    this.draw(this.type);
+    this.size = size;
   }
 
-  draw(type) {
-    switch (type) {
+  updatePosition(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  draw() {
+    switch (this.type) {
       case "pawn":
-        drawPawn(this.x, this.y, this.color, this.ctx);
+        this.drawPawn();
+        break;
+      case "rook":
+        this.drawRook();
+        break;
+      case "knight":
+        this.drawKnight();
+        break;
+      case "king":
+        this.drawKing();
+        break;
+      case "queen":
+        this.drawQueen();
+        break;
+      case "bishop":
+        this.drawBishop();
+        break;
     }
   }
-  drawPawn(x, y, color, ctx) {
-    ctx.beginPath();
-    ctx.fillStyle = color;
-    ctx.arc(x, y - 20, 20, Math.PI, 0);
-    ctx.lineTo(x + 20, y + 20);
-    ctx.lineTo(x - 20, y + 20);
-    ctx.closePath();
-    ctx.fill();
 
-    // Draw pawn head
-    ctx.beginPath();
-    ctx.arc(x, y - 40, 10, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.fill();
+  drawPawn() {
+    // Draw pawn body (Unicode symbol)
+    this.ctx.fillStyle = this.color;
+    const pawnSymbol = "\u265F"; // Unicode symbol for pawn (♟️)
+    this.ctx.font = this.size * 1.8 + "px Arial";
+    this.ctx.textAlign = "center";
+    this.ctx.textBaseline = "middle";
+    this.ctx.fillText(pawnSymbol, this.x, this.y);
+  }
+  drawKnight() {
+    // Set knight color
+    this.ctx.fillStyle = this.color;
+
+    // Draw knight body (Unicode symbol)
+    const knightSymbol = "\u265E"; // Unicode symbol for knight (♞)
+    this.ctx.font = this.size * 2 + "px Arial";
+    this.ctx.textAlign = "center";
+    this.ctx.textBaseline = "middle";
+    this.ctx.fillText(knightSymbol, this.x, this.y);
+  }
+
+  drawQueen() {
+    // Set queen color
+    this.ctx.fillStyle = this.color;
+
+    // Draw queen body (Unicode symbol)
+    const queenSymbol = "\u265B"; // Unicode symbol for queen (♛)
+    this.ctx.font = this.size * 2 + "px Arial";
+    this.ctx.textAlign = "center";
+    this.ctx.textBaseline = "middle";
+    this.ctx.fillText(queenSymbol, this.x, this.y);
+  }
+
+  drawKing() {
+    // Set king color
+    this.ctx.fillStyle = this.color;
+
+    // Draw king body (Unicode symbol)
+    const kingSymbol = "\u265A"; // Unicode symbol for king (♚)
+    this.ctx.font = this.size * 2.2 + "px Arial";
+    this.ctx.textAlign = "center";
+    this.ctx.textBaseline = "middle";
+    this.ctx.fillText(kingSymbol, this.x, this.y);
+  }
+
+  drawBishop() {
+    // Set bishop color
+    this.ctx.fillStyle = this.color;
+
+    // Draw bishop body (Unicode symbol)
+    const bishopSymbol = "\u265D"; // Unicode symbol for bishop (♝)
+    this.ctx.font = this.size * 2 + "px Arial";
+    this.ctx.textAlign = "center";
+    this.ctx.textBaseline = "middle";
+    this.ctx.fillText(bishopSymbol, this.x, this.y);
+  }
+
+  drawRook() {
+    // Set rook color
+    this.ctx.fillStyle = this.color;
+
+    // Draw rook body (Unicode symbol)
+    const rookSymbol = "\u265C"; // Unicode symbol for rook (♜)
+    this.ctx.font = this.size * 1.5 + "px Arial";
+    this.ctx.textAlign = "center";
+    this.ctx.textBaseline = "middle";
+    this.ctx.fillText(rookSymbol, this.x, this.y);
   }
 }
