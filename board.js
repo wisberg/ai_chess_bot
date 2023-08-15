@@ -5,13 +5,69 @@ class Board {
     this.spaces = [];
     this.ctx = ctx;
     this.canvas = ctx.canvas;
+    this.selectedPiece = null;
     this.createBoard();
     this.canvas.addEventListener("click", (event) => this.handleClick(event));
   }
 
   handleClick(event) {
     const clickedSpace = this.getSpaceByLocation(event.clientX, event.clientY);
-    console.log(clickedSpace.piece.color, clickedSpace.piece.type);
+    if (!this.selectedPiece) {
+      if (clickedSpace && clickedSpace.piece) {
+        this.selectedPiece = clickedSpace.piece;
+        this.selectedPiece.isActive = true;
+        this.reDrawBoard();
+        this.selectedPiece.isActive = false;
+      }
+    } else {
+      if (clickedSpace) {
+        //If you click on the same space twice, deactivate the piece
+        const oldSpace = this.getSpaceByPiece(this.selectedPiece);
+
+        if (clickedSpace.piece) {
+          if (
+            clickedSpace === oldSpace ||
+            clickedSpace.piece.color === this.selectedPiece.color
+          ) {
+            this.selectedPiece.isActive = false;
+            this.selectedPiece = null;
+            this.reDrawBoard();
+          } else {
+            this.selectedPiece.pieceMove(clickedSpace, oldSpace);
+            this.selectedPiece = null;
+            this.reDrawBoard();
+          }
+        } else {
+          this.selectedPiece.pieceMove(clickedSpace, oldSpace);
+          this.selectedPiece = null;
+          this.reDrawBoard();
+        }
+      }
+    }
+  }
+
+  showAvailableSpaces() {
+    if (this.selectedPiece) {
+      const selectedSpace = this.getSpaceByPiece(this.selectedPiece);
+
+      for (const space of this.spaces) {
+        if (
+          (this.selectedPiece.color === "white" &&
+            space.i === selectedSpace.i - 1) ||
+          (this.selectedPiece.color === "black" &&
+            space.i === selectedSpace.i + 1)
+        ) {
+          // Add a green glow to the available spaces
+          this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+          this.ctx.fillRect(
+            (space.j - 1) * space.width,
+            (space.i - 1) * space.height,
+            space.width,
+            space.height
+          );
+        }
+      }
+    }
   }
 
   getSpaceByLocation(x, y) {
@@ -117,5 +173,23 @@ class Board {
         space.height
       );
     }
+  }
+  reDrawBoard() {
+    for (const space of this.spaces) {
+      this.ctx.fillStyle = space.color;
+      this.ctx.fillRect(
+        (space.j - 1) * space.width,
+        (space.i - 1) * space.height,
+        space.width,
+        space.height
+      );
+    }
+
+    for (const space of this.spaces) {
+      if (space.piece) {
+        space.piece.draw();
+      }
+    }
+    this.showAvailableSpaces();
   }
 }

@@ -7,6 +7,7 @@ class Piece {
     this.color = color;
     this.size = size;
     this.canvas = this.ctx.canvas;
+    this.isActive = false;
   }
 
   updatePosition(x, y) {
@@ -19,12 +20,13 @@ class Piece {
   }
 
   pieceMove(newSpace, oldSpace) {
+    newSpace.piece = null;
     newSpace.piece = this;
     oldSpace.piece = null;
     this.i = newSpace.i;
     this.j = newSpace.j;
-    const x = (this.j - 0.5) * 62.5; // Adjusted x calculation
-    const y = (this.i - 0.5) * 62.5; // Adjusted y calculation
+    const x = (this.j - 0.5) * newSpace.width; // Adjusted x calculation
+    const y = (this.i - 0.5) * newSpace.height; // Adjusted y calculation
     this.updatePosition(x, y);
     this.associateSpace(this.i, this.j);
     this.draw();
@@ -57,7 +59,11 @@ class Piece {
     // Draw pawn body (Unicode symbol)
     this.ctx.fillStyle = this.color;
     const pawnSymbol = "\u265F"; // Unicode symbol for pawn (♟️)
-    this.ctx.font = this.size * 1.8 + "px Arial";
+    if (this.isActive) {
+      this.ctx.font = this.size * 2.2 + "px Arial";
+    } else {
+      this.ctx.font = this.size * 1.8 + "px Arial";
+    }
     this.ctx.textAlign = "center";
     this.ctx.textBaseline = "middle";
     this.ctx.fillText(pawnSymbol, this.x, this.y);
@@ -68,7 +74,11 @@ class Piece {
 
     // Draw knight body (Unicode symbol)
     const knightSymbol = "\u265E"; // Unicode symbol for knight (♞)
-    this.ctx.font = this.size * 2 + "px Arial";
+    if (this.isActive) {
+      this.ctx.font = this.size * 2.2 + "px Arial";
+    } else {
+      this.ctx.font = this.size * 1.8 + "px Arial";
+    }
     this.ctx.textAlign = "center";
     this.ctx.textBaseline = "middle";
     this.ctx.fillText(knightSymbol, this.x, this.y);
@@ -80,7 +90,11 @@ class Piece {
 
     // Draw queen body (Unicode symbol)
     const queenSymbol = "\u265B"; // Unicode symbol for queen (♛)
-    this.ctx.font = this.size * 2 + "px Arial";
+    if (this.isActive) {
+      this.ctx.font = this.size * 2.2 + "px Arial";
+    } else {
+      this.ctx.font = this.size * 1.8 + "px Arial";
+    }
     this.ctx.textAlign = "center";
     this.ctx.textBaseline = "middle";
     this.ctx.fillText(queenSymbol, this.x, this.y);
@@ -92,7 +106,11 @@ class Piece {
 
     // Draw king body (Unicode symbol)
     const kingSymbol = "\u265A"; // Unicode symbol for king (♚)
-    this.ctx.font = this.size * 2.2 + "px Arial";
+    if (this.isActive) {
+      this.ctx.font = this.size * 2.5 + "px Arial";
+    } else {
+      this.ctx.font = this.size * 2.2 + "px Arial";
+    }
     this.ctx.textAlign = "center";
     this.ctx.textBaseline = "middle";
     this.ctx.fillText(kingSymbol, this.x, this.y);
@@ -104,7 +122,11 @@ class Piece {
 
     // Draw bishop body (Unicode symbol)
     const bishopSymbol = "\u265D"; // Unicode symbol for bishop (♝)
-    this.ctx.font = this.size * 2 + "px Arial";
+    if (this.isActive) {
+      this.ctx.font = this.size * 2.2 + "px Arial";
+    } else {
+      this.ctx.font = this.size * 1.8 + "px Arial";
+    }
     this.ctx.textAlign = "center";
     this.ctx.textBaseline = "middle";
     this.ctx.fillText(bishopSymbol, this.x, this.y);
@@ -116,7 +138,11 @@ class Piece {
 
     // Draw rook body (Unicode symbol)
     const rookSymbol = "\u265C"; // Unicode symbol for rook (♜)
-    this.ctx.font = this.size * 1.5 + "px Arial";
+    if (this.isActive) {
+      this.ctx.font = this.size * 2 + "px Arial";
+    } else {
+      this.ctx.font = this.size * 1.5 + "px Arial";
+    }
     this.ctx.textAlign = "center";
     this.ctx.textBaseline = "middle";
     this.ctx.fillText(rookSymbol, this.x, this.y);
