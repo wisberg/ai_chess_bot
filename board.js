@@ -4,7 +4,29 @@ class Board {
     this.height = board.height;
     this.spaces = [];
     this.ctx = ctx;
+    this.canvas = ctx.canvas;
     this.createBoard();
+    this.canvas.addEventListener("click", (event) => this.handleClick(event));
+  }
+
+  handleClick(event) {
+    const clickedSpace = this.getSpaceByLocation(event.clientX, event.clientY);
+    console.log(clickedSpace.piece.color, clickedSpace.piece.type);
+  }
+
+  getSpaceByLocation(x, y) {
+    // Calculate the row (i) and column (j) based on the coordinates
+    const i = Math.floor(y / (this.height / 8)) + 1;
+    const j = Math.floor(x / (this.width / 8));
+
+    // Find and return the space associated with the calculated coordinates
+    for (const space of this.spaces) {
+      if (space.i === i && space.j === j) {
+        return space;
+      }
+    }
+    // Return null if no space is found
+    return null;
   }
 
   createBoard() {
@@ -19,7 +41,7 @@ class Board {
           i,
           j,
           ctx,
-          "pawn"
+          ""
         );
         this.spaces.push(space);
       }
@@ -68,23 +90,12 @@ class Board {
           space.width / 2
         );
         space.associatePiece(piece);
-
         const x = (space.j - 0.5) * space.width; // Adjusted x calculation
         const y = (space.i - 0.5) * space.height; // Adjusted y calculation
         piece.updatePosition(x, y);
-        piece.setBoard(this);
         piece.draw(); // Draw the piece after updating its position
       }
     }
-  }
-  updateSpaces(piece, targetSpace) {
-    const sourceSpace = this.getSpaceByPiece(piece);
-    sourceSpace.piece = null; // Clear the source space
-    targetSpace.piece = piece; // Set the target space
-    piece.updatePosition(
-      targetSpace.x + targetSpace.width / 2,
-      targetSpace.y + targetSpace.height / 2
-    );
   }
 
   getSpaceByPiece(piece) {

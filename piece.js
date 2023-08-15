@@ -6,11 +6,28 @@ class Piece {
     this.y = y;
     this.color = color;
     this.size = size;
+    this.canvas = this.ctx.canvas;
   }
 
   updatePosition(x, y) {
     this.x = x;
     this.y = y;
+  }
+  associateSpace(i, j) {
+    this.i = i;
+    this.j = j;
+  }
+
+  pieceMove(newSpace, oldSpace) {
+    newSpace.piece = this;
+    oldSpace.piece = null;
+    this.i = newSpace.i;
+    this.j = newSpace.j;
+    const x = (this.j - 0.5) * 62.5; // Adjusted x calculation
+    const y = (this.i - 0.5) * 62.5; // Adjusted y calculation
+    this.updatePosition(x, y);
+    this.associateSpace(this.i, this.j);
+    this.draw();
   }
 
   draw() {

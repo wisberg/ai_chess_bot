@@ -1,16 +1,16 @@
 class Space {
-  constructor(color, width, height, i, j, ctx, pieceType = null) {
+  constructor(color, width, height, i, j, ctx) {
     this.color = color;
     this.width = width;
     this.height = height;
     this.i = i;
     this.j = j;
     this.ctx = ctx;
-    this.pieceType = pieceType;
     this.piece = null;
   }
 
   associatePiece(piece) {
     this.piece = piece;
+    piece.associateSpace(this.i, this.j);
   }
 }
