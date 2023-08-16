@@ -8,13 +8,13 @@ class Piece {
     this.size = size;
     this.canvas = this.ctx.canvas;
     this.isActive = false;
-    //this.availableSpaces = [];
+    this.availableSpaces = [];
   }
 
   updatePosition(x, y) {
     this.x = x;
     this.y = y;
-    //this.availableSpaces = [];
+    this.availableSpaces = [];
   }
   associateSpace(i, j) {
     this.i = i;

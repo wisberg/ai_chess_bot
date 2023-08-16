@@ -34,12 +34,19 @@ class Board {
             this.selectedPiece = null;
             this.reDrawBoard();
           } else {
+            if (this.selectedPiece.availableSpaces.includes(clickedSpace)) {
+              this.selectedPiece.pieceMove(clickedSpace, oldSpace);
+              this.selectedPiece = null;
+              this.reDrawBoard();
+            }
+            this.selectedPiece = null;
+          }
+        } else {
+          if (this.selectedPiece.availableSpaces.includes(clickedSpace)) {
             this.selectedPiece.pieceMove(clickedSpace, oldSpace);
             this.selectedPiece = null;
             this.reDrawBoard();
           }
-        } else {
-          this.selectedPiece.pieceMove(clickedSpace, oldSpace);
           this.selectedPiece = null;
           this.reDrawBoard();
         }
@@ -57,7 +64,6 @@ class Board {
           case "knight":
             //Movement Logic for a white knight
             const selectedSpace = this.getSpaceByPiece(this.selectedPiece);
-
             const availableOffsets = [
               { i: -2, j: -1 },
               { i: -2, j: 1 },
@@ -77,6 +83,7 @@ class Board {
               if (targetSpace) {
                 if (targetSpace.piece !== null) {
                   if (targetSpace.piece.color !== "white") {
+                    this.selectedPiece.availableSpaces.push(targetSpace);
                     // Add a green glow to the available spaces
                     //this.selectedPiece.availableSpaces.push(targetSpace);
                     this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
@@ -89,6 +96,7 @@ class Board {
                   }
                 } else {
                   // Add a green glow to the available spaces
+                  this.selectedPiece.availableSpaces.push(targetSpace);
                   this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
                   this.ctx.fillRect(
                     (targetSpace.j - 1) * targetSpace.width,
@@ -186,7 +194,6 @@ class Board {
     // Calculate the row (i) and column (j) based on the coordinates
     const i = Math.floor(y / (this.height / 8) + 0.5);
     const j = Math.floor(x / (this.width / 8));
-    console.log(i, j);
 
     // Find and return the space associated with the calculated coordinates
     for (const space of this.spaces) {
