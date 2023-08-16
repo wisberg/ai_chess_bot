@@ -7,10 +7,18 @@ class Board {
     this.canvas = ctx.canvas;
     this.selectedPiece = null;
     this.createBoard();
+    this.pieceToMove = "white";
     this.canvas.addEventListener("click", (event) => this.handleClick(event));
   }
 
+  resetBoard() {
+    this.selectedPiece = null;
+    this.setupInitialBoardState();
+    this.pieceToMove = "white";
+  }
+
   handleClick(event) {
+    console.log(this.pieceToMove);
     const clickedSpace = this.getSpaceByLocation(event.clientX, event.clientY);
     if (!this.selectedPiece) {
       if (clickedSpace && clickedSpace.piece) {
@@ -20,82 +28,257 @@ class Board {
         this.selectedPiece.isActive = false;
       }
     } else {
-      if (clickedSpace) {
-        //if (this.selectedPiece.availableSpaces.includes(clickedSpace)) {
-        //If you click on the same space twice, deactivate the piece
-        const oldSpace = this.getSpaceByPiece(this.selectedPiece);
-
-        if (clickedSpace.piece) {
-          if (
-            clickedSpace === oldSpace ||
-            clickedSpace.piece.color === this.selectedPiece.color
-          ) {
-            this.selectedPiece.isActive = false;
-            this.selectedPiece = null;
-            this.reDrawBoard();
+      if (this.selectedPiece.color !== this.pieceToMove) {
+        this.selectedPiece.isActive = false;
+        this.selectedPiece = null;
+        this.reDrawBoard();
+      } else {
+        if (clickedSpace) {
+          //If you click on the same space twice, deactivate the piece
+          const oldSpace = this.getSpaceByPiece(this.selectedPiece);
+          if (clickedSpace.piece) {
+            if (
+              clickedSpace === oldSpace ||
+              clickedSpace.piece.color === this.selectedPiece.color
+            ) {
+              this.selectedPiece.isActive = false;
+              this.selectedPiece = null;
+              this.reDrawBoard();
+            } else {
+              if (this.selectedPiece.availableSpaces.includes(clickedSpace)) {
+                this.selectedPiece.pieceMove(clickedSpace, oldSpace);
+                this.switchPieceToMove();
+                this.selectedPiece = null;
+                this.reDrawBoard();
+              }
+              this.selectedPiece = null;
+            }
           } else {
             if (this.selectedPiece.availableSpaces.includes(clickedSpace)) {
+              this.switchPieceToMove();
               this.selectedPiece.pieceMove(clickedSpace, oldSpace);
               this.selectedPiece = null;
               this.reDrawBoard();
+            } else {
+              this.selectedPiece = null;
+              this.reDrawBoard();
             }
-            this.selectedPiece = null;
           }
-        } else {
-          if (this.selectedPiece.availableSpaces.includes(clickedSpace)) {
-            this.selectedPiece.pieceMove(clickedSpace, oldSpace);
-            this.selectedPiece = null;
-            this.reDrawBoard();
-          }
-          this.selectedPiece = null;
-          this.reDrawBoard();
         }
       }
     }
   }
 
-  showAvailableSpaces() {
-    if (this.selectedPiece) {
-      if (this.selectedPiece.color === "white") {
-        switch (this.selectedPiece.type) {
-          case "pawn":
-            //Movement Logic for a white Pawn
-            break;
-          case "knight":
-            //Movement Logic for a white knight
-            const selectedSpace = this.getSpaceByPiece(this.selectedPiece);
-            const availableOffsets = [
-              { i: -2, j: -1 },
-              { i: -2, j: 1 },
-              { i: -1, j: -2 },
-              { i: -1, j: 2 },
-              { i: 1, j: -2 },
-              { i: 1, j: 2 },
-              { i: 2, j: -1 },
-              { i: 2, j: 1 },
-            ];
-            for (const offset of availableOffsets) {
-              const targetI = selectedSpace.i + offset.i;
-              const targetJ = selectedSpace.j + offset.j;
+  switchPieceToMove() {
+    if (this.pieceToMove === "white") {
+      this.pieceToMove = "black";
+    } else {
+      this.pieceToMove = "white";
+    }
+  }
 
+  showAvailableSpaces() {
+    const selectedSpace = this.getSpaceByPiece(this.selectedPiece);
+    let availableOffsets = [];
+    if (this.selectedPiece) {
+      switch (this.selectedPiece.type) {
+        case "pawn":
+          const forwardOffset = [];
+          if (this.selectedPiece.color === "white") {
+            forwardOffset.push({ i: -1, j: 0 });
+            if (this.selectedPiece.i === 7) {
+              forwardOffset.push({ i: -2, j: 0 });
+            }
+          } else {
+            // Black pawn
+            forwardOffset.push({ i: 1, j: 0 });
+            if (this.selectedPiece.i === 2) {
+              forwardOffset.push({ i: 2, j: 0 });
+            }
+          }
+
+          const captureOffsets = [
+            { i: -1, j: -1 },
+            { i: -1, j: 1 },
+          ];
+
+          const initialSpace = this.getSpaceByPiece(this.selectedPiece);
+
+          for (const offset of forwardOffset) {
+            const targetI = initialSpace.i + offset.i;
+            const targetJ = initialSpace.j + offset.j;
+
+            const targetSpace = this.getSpaceByIJ(targetI, targetJ);
+
+            // Check if the forward space is available and empty
+            if (targetSpace && !targetSpace.piece) {
+              this.selectedPiece.availableSpaces.push(targetSpace);
+              this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+              this.ctx.fillRect(
+                (targetSpace.j - 1) * targetSpace.width,
+                (targetSpace.i - 1) * targetSpace.height,
+                targetSpace.width,
+                targetSpace.height
+              );
+            }
+          }
+
+          // Check for capturing diagonally
+          for (const captureOffset of captureOffsets) {
+            const targetI = initialSpace.i + captureOffset.i;
+            const targetJ = initialSpace.j + captureOffset.j;
+
+            const targetSpace = this.getSpaceByIJ(targetI, targetJ);
+
+            if (
+              targetSpace &&
+              targetSpace.piece &&
+              targetSpace.piece.color !== this.selectedPiece.color
+            ) {
+              this.selectedPiece.availableSpaces.push(targetSpace);
+              this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+              this.ctx.fillRect(
+                (targetSpace.j - 1) * targetSpace.width,
+                (targetSpace.i - 1) * targetSpace.height,
+                targetSpace.width,
+                targetSpace.height
+              );
+            }
+          }
+          break;
+
+        case "knight":
+          //Movement Logic for a knight
+          availableOffsets = [
+            { i: -2, j: -1 },
+            { i: -2, j: 1 },
+            { i: -1, j: -2 },
+            { i: -1, j: 2 },
+            { i: 1, j: -2 },
+            { i: 1, j: 2 },
+            { i: 2, j: -1 },
+            { i: 2, j: 1 },
+          ];
+          for (const offset of availableOffsets) {
+            const targetI = selectedSpace.i + offset.i;
+            const targetJ = selectedSpace.j + offset.j;
+
+            const targetSpace = this.getSpaceByIJ(targetI, targetJ);
+
+            if (targetSpace) {
+              if (targetSpace.piece !== null) {
+                if (targetSpace.piece.color !== this.selectedPiece.color) {
+                  this.selectedPiece.availableSpaces.push(targetSpace);
+                  // Add a green glow to the available spaces
+                  //this.selectedPiece.availableSpaces.push(targetSpace);
+                  this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+                  this.ctx.fillRect(
+                    (targetSpace.j - 1) * targetSpace.width,
+                    (targetSpace.i - 1) * targetSpace.height,
+                    targetSpace.width,
+                    targetSpace.height
+                  );
+                }
+              } else {
+                // Add a green glow to the available spaces
+                this.selectedPiece.availableSpaces.push(targetSpace);
+                this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+                this.ctx.fillRect(
+                  (targetSpace.j - 1) * targetSpace.width,
+                  (targetSpace.i - 1) * targetSpace.height,
+                  targetSpace.width,
+                  targetSpace.height
+                );
+              }
+            }
+          }
+          break;
+        case "bishop":
+          //Movement Logic for a white bishop
+          break;
+        case "queen":
+          //Movement Logic for a white queen
+          break;
+        case "king":
+          //Movement Logic for a white king
+          availableOffsets = [
+            { i: -1, j: -1 },
+            { i: -1, j: 1 },
+            { i: 1, j: -1 },
+            { i: 1, j: 1 },
+            { i: 1, j: 0 },
+            { i: 0, j: 1 },
+            { i: -1, j: 0 },
+            { i: 0, j: -1 },
+          ];
+          for (const offset of availableOffsets) {
+            const targetI = selectedSpace.i + offset.i;
+            const targetJ = selectedSpace.j + offset.j;
+
+            const targetSpace = this.getSpaceByIJ(targetI, targetJ);
+
+            if (targetSpace) {
+              if (targetSpace.piece !== null) {
+                if (targetSpace.piece.color !== this.selectedPiece.color) {
+                  this.selectedPiece.availableSpaces.push(targetSpace);
+                  // Add a green glow to the available spaces
+                  //this.selectedPiece.availableSpaces.push(targetSpace);
+                  this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+                  this.ctx.fillRect(
+                    (targetSpace.j - 1) * targetSpace.width,
+                    (targetSpace.i - 1) * targetSpace.height,
+                    targetSpace.width,
+                    targetSpace.height
+                  );
+                }
+              } else {
+                // Add a green glow to the available spaces
+                this.selectedPiece.availableSpaces.push(targetSpace);
+                this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+                this.ctx.fillRect(
+                  (targetSpace.j - 1) * targetSpace.width,
+                  (targetSpace.i - 1) * targetSpace.height,
+                  targetSpace.width,
+                  targetSpace.height
+                );
+              }
+            }
+          }
+          break;
+        case "rook":
+          //Movement Logic for a rook
+          const rookOffsets = [
+            { i: -1, j: 0 }, // Up
+            { i: 1, j: 0 }, // Down
+            { i: 0, j: -1 }, // Left
+            { i: 0, j: 1 }, // Right
+          ];
+
+          for (const offset of rookOffsets) {
+            let targetI = selectedSpace.i + offset.i;
+            let targetJ = selectedSpace.j + offset.j;
+
+            while (true) {
               const targetSpace = this.getSpaceByIJ(targetI, targetJ);
 
-              if (targetSpace) {
-                if (targetSpace.piece !== null) {
-                  if (targetSpace.piece.color !== "white") {
-                    this.selectedPiece.availableSpaces.push(targetSpace);
-                    // Add a green glow to the available spaces
-                    //this.selectedPiece.availableSpaces.push(targetSpace);
-                    this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
-                    this.ctx.fillRect(
-                      (targetSpace.j - 1) * targetSpace.width,
-                      (targetSpace.i - 1) * targetSpace.height,
-                      targetSpace.width,
-                      targetSpace.height
-                    );
-                  }
-                } else {
-                  // Add a green glow to the available spaces
+              if (!targetSpace) {
+                break; // Exit the loop if out of bounds
+              }
+
+              if (!targetSpace.piece) {
+                // Empty space, highlight it
+                this.selectedPiece.availableSpaces.push(targetSpace);
+                this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+                this.ctx.fillRect(
+                  (targetSpace.j - 1) * targetSpace.width,
+                  (targetSpace.i - 1) * targetSpace.height,
+                  targetSpace.width,
+                  targetSpace.height
+                );
+              } else {
+                // Space has a piece, check its color
+                if (targetSpace.piece.color !== this.selectedPiece.color) {
+                  // Opponent's piece, highlight and stop searching in this direction
                   this.selectedPiece.availableSpaces.push(targetSpace);
                   this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
                   this.ctx.fillRect(
@@ -105,87 +288,15 @@ class Board {
                     targetSpace.height
                   );
                 }
+                break; // Stop searching in this direction
               }
+
+              // Move to the next space in the same direction
+              targetI += offset.i;
+              targetJ += offset.j;
             }
-            break;
-          case "bishop":
-            //Movement Logic for a white bishop
-            break;
-          case "queen":
-            //Movement Logic for a white queen
-            break;
-          case "king":
-            //Movement Logic for a white king
-            break;
-          case "rook":
-            //Movement Logic for a white rook
-            break;
-        }
-      } else {
-        switch (this.selectedPiece.type) {
-          case "pawn":
-            //Movement Logic for a black Pawn
-            console.log("pawn");
-            break;
-          case "knight":
-            //Movement Logic for a black knight
-            const selectedSpace = this.getSpaceByPiece(this.selectedPiece);
-
-            const availableOffsets = [
-              { i: -2, j: -1 },
-              { i: -2, j: 1 },
-              { i: -1, j: -2 },
-              { i: -1, j: 2 },
-              { i: 1, j: -2 },
-              { i: 1, j: 2 },
-              { i: 2, j: -1 },
-              { i: 2, j: 1 },
-            ];
-            for (const offset of availableOffsets) {
-              const targetI = selectedSpace.i + offset.i;
-              const targetJ = selectedSpace.j + offset.j;
-
-              const targetSpace = this.getSpaceByIJ(targetI, targetJ);
-
-              if (targetSpace) {
-                if (targetSpace.piece !== null) {
-                  if (targetSpace.piece.color !== "black") {
-                    // Add a green glow to the available spaces
-                    //this.selectedPiece.availableSpaces.push(targetSpace);
-                    this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
-                    this.ctx.fillRect(
-                      (targetSpace.j - 1) * targetSpace.width,
-                      (targetSpace.i - 1) * targetSpace.height,
-                      targetSpace.width,
-                      targetSpace.height
-                    );
-                  }
-                } else {
-                  // Add a green glow to the available spaces
-                  this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
-                  this.ctx.fillRect(
-                    (targetSpace.j - 1) * targetSpace.width,
-                    (targetSpace.i - 1) * targetSpace.height,
-                    targetSpace.width,
-                    targetSpace.height
-                  );
-                }
-              }
-            }
-            break;
-          case "bishop":
-            //Movement Logic for a black bishop
-            break;
-          case "queen":
-            //Movement Logic for a black queen
-            break;
-          case "king":
-            //Movement Logic for a black king
-            break;
-          case "rook":
-            //Movement Logic for a black rook
-            break;
-        }
+          }
+          break;
       }
     }
   }
@@ -194,6 +305,8 @@ class Board {
     // Calculate the row (i) and column (j) based on the coordinates
     const i = Math.floor(y / (this.height / 8) + 0.5);
     const j = Math.floor(x / (this.width / 8));
+
+    console.log(this.height, this.width);
 
     // Find and return the space associated with the calculated coordinates
     for (const space of this.spaces) {
