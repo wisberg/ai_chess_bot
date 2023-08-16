@@ -21,6 +21,7 @@ class Board {
       }
     } else {
       if (clickedSpace) {
+        //if (this.selectedPiece.availableSpaces.includes(clickedSpace)) {
         //If you click on the same space twice, deactivate the piece
         const oldSpace = this.getSpaceByPiece(this.selectedPiece);
 
@@ -48,23 +49,134 @@ class Board {
 
   showAvailableSpaces() {
     if (this.selectedPiece) {
-      const selectedSpace = this.getSpaceByPiece(this.selectedPiece);
+      if (this.selectedPiece.color === "white") {
+        switch (this.selectedPiece.type) {
+          case "pawn":
+            //Movement Logic for a white Pawn
+            break;
+          case "knight":
+            //Movement Logic for a white knight
+            const selectedSpace = this.getSpaceByPiece(this.selectedPiece);
 
-      for (const space of this.spaces) {
-        if (
-          (this.selectedPiece.color === "white" &&
-            space.i === selectedSpace.i - 1) ||
-          (this.selectedPiece.color === "black" &&
-            space.i === selectedSpace.i + 1)
-        ) {
-          // Add a green glow to the available spaces
-          this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
-          this.ctx.fillRect(
-            (space.j - 1) * space.width,
-            (space.i - 1) * space.height,
-            space.width,
-            space.height
-          );
+            const availableOffsets = [
+              { i: -2, j: -1 },
+              { i: -2, j: 1 },
+              { i: -1, j: -2 },
+              { i: -1, j: 2 },
+              { i: 1, j: -2 },
+              { i: 1, j: 2 },
+              { i: 2, j: -1 },
+              { i: 2, j: 1 },
+            ];
+            for (const offset of availableOffsets) {
+              const targetI = selectedSpace.i + offset.i;
+              const targetJ = selectedSpace.j + offset.j;
+
+              const targetSpace = this.getSpaceByIJ(targetI, targetJ);
+
+              if (targetSpace) {
+                if (targetSpace.piece !== null) {
+                  if (targetSpace.piece.color !== "white") {
+                    // Add a green glow to the available spaces
+                    //this.selectedPiece.availableSpaces.push(targetSpace);
+                    this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+                    this.ctx.fillRect(
+                      (targetSpace.j - 1) * targetSpace.width,
+                      (targetSpace.i - 1) * targetSpace.height,
+                      targetSpace.width,
+                      targetSpace.height
+                    );
+                  }
+                } else {
+                  // Add a green glow to the available spaces
+                  this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+                  this.ctx.fillRect(
+                    (targetSpace.j - 1) * targetSpace.width,
+                    (targetSpace.i - 1) * targetSpace.height,
+                    targetSpace.width,
+                    targetSpace.height
+                  );
+                }
+              }
+            }
+            break;
+          case "bishop":
+            //Movement Logic for a white bishop
+            break;
+          case "queen":
+            //Movement Logic for a white queen
+            break;
+          case "king":
+            //Movement Logic for a white king
+            break;
+          case "rook":
+            //Movement Logic for a white rook
+            break;
+        }
+      } else {
+        switch (this.selectedPiece.type) {
+          case "pawn":
+            //Movement Logic for a black Pawn
+            console.log("pawn");
+            break;
+          case "knight":
+            //Movement Logic for a black knight
+            const selectedSpace = this.getSpaceByPiece(this.selectedPiece);
+
+            const availableOffsets = [
+              { i: -2, j: -1 },
+              { i: -2, j: 1 },
+              { i: -1, j: -2 },
+              { i: -1, j: 2 },
+              { i: 1, j: -2 },
+              { i: 1, j: 2 },
+              { i: 2, j: -1 },
+              { i: 2, j: 1 },
+            ];
+            for (const offset of availableOffsets) {
+              const targetI = selectedSpace.i + offset.i;
+              const targetJ = selectedSpace.j + offset.j;
+
+              const targetSpace = this.getSpaceByIJ(targetI, targetJ);
+
+              if (targetSpace) {
+                if (targetSpace.piece !== null) {
+                  if (targetSpace.piece.color !== "black") {
+                    // Add a green glow to the available spaces
+                    //this.selectedPiece.availableSpaces.push(targetSpace);
+                    this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+                    this.ctx.fillRect(
+                      (targetSpace.j - 1) * targetSpace.width,
+                      (targetSpace.i - 1) * targetSpace.height,
+                      targetSpace.width,
+                      targetSpace.height
+                    );
+                  }
+                } else {
+                  // Add a green glow to the available spaces
+                  this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+                  this.ctx.fillRect(
+                    (targetSpace.j - 1) * targetSpace.width,
+                    (targetSpace.i - 1) * targetSpace.height,
+                    targetSpace.width,
+                    targetSpace.height
+                  );
+                }
+              }
+            }
+            break;
+          case "bishop":
+            //Movement Logic for a black bishop
+            break;
+          case "queen":
+            //Movement Logic for a black queen
+            break;
+          case "king":
+            //Movement Logic for a black king
+            break;
+          case "rook":
+            //Movement Logic for a black rook
+            break;
         }
       }
     }
@@ -72,8 +184,9 @@ class Board {
 
   getSpaceByLocation(x, y) {
     // Calculate the row (i) and column (j) based on the coordinates
-    const i = Math.floor(y / (this.height / 8)) + 1;
+    const i = Math.floor(y / (this.height / 8) + 0.5);
     const j = Math.floor(x / (this.width / 8));
+    console.log(i, j);
 
     // Find and return the space associated with the calculated coordinates
     for (const space of this.spaces) {
@@ -160,6 +273,16 @@ class Board {
         return space;
       }
     }
+    return null;
+  }
+
+  getSpaceByIJ(i, j) {
+    for (const space of this.spaces) {
+      if (space.i === i && space.j === j) {
+        return space;
+      }
+    }
+    // Return null if no space is found
     return null;
   }
 
