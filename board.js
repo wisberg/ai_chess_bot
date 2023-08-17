@@ -95,6 +95,7 @@ class Board {
     const selectedSpace = this.getSpaceByPiece(this.selectedPiece);
     let availableOffsets = [];
     let diagonalOffsets = [];
+    let straightOffsets = [];
     if (this.selectedPiece) {
       switch (this.selectedPiece.type) {
         case "pawn":
@@ -271,7 +272,7 @@ class Board {
             { i: 1, j: 1 },
           ];
 
-          const straightOffsets = [
+          straightOffsets = [
             { i: -1, j: 0 },
             { i: 1, j: 0 },
             { i: 0, j: -1 },
@@ -290,28 +291,31 @@ class Board {
               targetJ <= 8
             ) {
               const targetSpace = this.getSpaceByIJ(targetI, targetJ);
-
-              if (!targetSpace.piece) {
-                this.selectedPiece.availableSpaces.push(targetSpace);
-                this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
-                this.ctx.fillRect(
-                  (targetSpace.j - 1) * targetSpace.width,
-                  (targetSpace.i - 1) * targetSpace.height,
-                  targetSpace.width,
-                  targetSpace.height
-                );
-              } else if (targetSpace.piece.color !== this.selectedPiece.color) {
-                this.selectedPiece.availableSpaces.push(targetSpace);
-                this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
-                this.ctx.fillRect(
-                  (targetSpace.j - 1) * targetSpace.width,
-                  (targetSpace.i - 1) * targetSpace.height,
-                  targetSpace.width,
-                  targetSpace.height
-                );
-                break; // Stop checking in this direction after encountering an opposing piece
-              } else {
-                break; // Stop checking in this direction if blocked by own piece
+              if (targetSpace) {
+                if (!targetSpace.piece) {
+                  this.selectedPiece.availableSpaces.push(targetSpace);
+                  this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+                  this.ctx.fillRect(
+                    (targetSpace.j - 1) * targetSpace.width,
+                    (targetSpace.i - 1) * targetSpace.height,
+                    targetSpace.width,
+                    targetSpace.height
+                  );
+                } else if (
+                  targetSpace.piece.color !== this.selectedPiece.color
+                ) {
+                  this.selectedPiece.availableSpaces.push(targetSpace);
+                  this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+                  this.ctx.fillRect(
+                    (targetSpace.j - 1) * targetSpace.width,
+                    (targetSpace.i - 1) * targetSpace.height,
+                    targetSpace.width,
+                    targetSpace.height
+                  );
+                  break; // Stop checking in this direction after encountering an opposing piece
+                } else {
+                  break; // Stop checking in this direction if blocked by own piece
+                }
               }
 
               targetI += offset.i;
@@ -331,28 +335,84 @@ class Board {
               targetJ <= 8
             ) {
               const targetSpace = this.getSpaceByIJ(targetI, targetJ);
+              if (targetSpace) {
+                if (!targetSpace.piece) {
+                  this.selectedPiece.availableSpaces.push(targetSpace);
+                  this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+                  this.ctx.fillRect(
+                    (targetSpace.j - 1) * targetSpace.width,
+                    (targetSpace.i - 1) * targetSpace.height,
+                    targetSpace.width,
+                    targetSpace.height
+                  );
+                } else if (
+                  targetSpace.piece.color !== this.selectedPiece.color
+                ) {
+                  this.selectedPiece.availableSpaces.push(targetSpace);
+                  this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+                  this.ctx.fillRect(
+                    (targetSpace.j - 1) * targetSpace.width,
+                    (targetSpace.i - 1) * targetSpace.height,
+                    targetSpace.width,
+                    targetSpace.height
+                  );
+                  break; // Stop checking in this direction after encountering an opposing piece
+                } else {
+                  break; // Stop checking in this direction if blocked by own piece
+                }
+              }
 
-              if (!targetSpace.piece) {
-                this.selectedPiece.availableSpaces.push(targetSpace);
-                this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
-                this.ctx.fillRect(
-                  (targetSpace.j - 1) * targetSpace.width,
-                  (targetSpace.i - 1) * targetSpace.height,
-                  targetSpace.width,
-                  targetSpace.height
-                );
-              } else if (targetSpace.piece.color !== this.selectedPiece.color) {
-                this.selectedPiece.availableSpaces.push(targetSpace);
-                this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
-                this.ctx.fillRect(
-                  (targetSpace.j - 1) * targetSpace.width,
-                  (targetSpace.i - 1) * targetSpace.height,
-                  targetSpace.width,
-                  targetSpace.height
-                );
-                break; // Stop checking in this direction after encountering an opposing piece
-              } else {
-                break; // Stop checking in this direction if blocked by own piece
+              targetI += offset.i;
+              targetJ += offset.j;
+            }
+          }
+
+          break;
+
+        case "rook":
+          // Straight movement
+          straightOffsets = [
+            { i: -1, j: 0 },
+            { i: 1, j: 0 },
+            { i: 0, j: -1 },
+            { i: 0, j: 1 },
+          ];
+          for (const offset of straightOffsets) {
+            let targetI = selectedSpace.i + offset.i;
+            let targetJ = selectedSpace.j + offset.j;
+
+            while (
+              targetI >= 1 &&
+              targetI <= 8 &&
+              targetJ >= 0 &&
+              targetJ <= 8
+            ) {
+              const targetSpace = this.getSpaceByIJ(targetI, targetJ);
+              if (targetSpace) {
+                if (!targetSpace.piece) {
+                  this.selectedPiece.availableSpaces.push(targetSpace);
+                  this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+                  this.ctx.fillRect(
+                    (targetSpace.j - 1) * targetSpace.width,
+                    (targetSpace.i - 1) * targetSpace.height,
+                    targetSpace.width,
+                    targetSpace.height
+                  );
+                } else if (
+                  targetSpace.piece.color !== this.selectedPiece.color
+                ) {
+                  this.selectedPiece.availableSpaces.push(targetSpace);
+                  this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+                  this.ctx.fillRect(
+                    (targetSpace.j - 1) * targetSpace.width,
+                    (targetSpace.i - 1) * targetSpace.height,
+                    targetSpace.width,
+                    targetSpace.height
+                  );
+                  break; // Stop checking in this direction after encountering an opposing piece
+                } else {
+                  break; // Stop checking in this direction if blocked by own piece
+                }
               }
 
               targetI += offset.i;
@@ -450,8 +510,6 @@ class Board {
       }
     }
   }
-
-  kingCastleRook() {}
 
   getSpaceByLocation(x, y) {
     // Calculate the offset of the click relative to the canvas position
