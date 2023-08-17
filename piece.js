@@ -9,6 +9,7 @@ class Piece {
     this.canvas = this.ctx.canvas;
     this.isActive = false;
     this.availableSpaces = [];
+    this.hasMoved = false;
   }
 
   updatePosition(x, y) {
