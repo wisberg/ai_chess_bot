@@ -10,6 +10,7 @@ class Piece {
     this.isActive = false;
     this.availableSpaces = [];
     this.hasMoved = false;
+    this.hasCastled = false;
   }
 
   updatePosition(x, y) {

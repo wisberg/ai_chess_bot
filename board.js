@@ -59,11 +59,25 @@ class Board {
               this.selectedPiece.pieceMove(clickedSpace, oldSpace);
               if (this.selectedPiece.type === "king") {
                 if (clickedSpace.j === oldSpace.j + 2) {
+                  this.selectedPiece.hasCastled = true;
                   let rookSpace = this.getSpaceByIJ(oldSpace.i, oldSpace.j + 3);
                   let rook = rookSpace.piece;
                   let targetRookSpace = this.getSpaceByIJ(
                     oldSpace.i,
                     oldSpace.j + 1
+                  );
+                  rook.pieceMove(targetRookSpace, rookSpace);
+                  this.selectedPiece = rook;
+                  this.reDrawBoard();
+                }
+                if (clickedSpace.j === oldSpace.j - 2) {
+                  //Logic for queenside castling
+                  this.selectedPiece.hasCastled = true;
+                  let rookSpace = this.getSpaceByIJ(oldSpace.i, oldSpace.j - 4);
+                  let rook = rookSpace.piece;
+                  let targetRookSpace = this.getSpaceByIJ(
+                    oldSpace.i,
+                    oldSpace.j - 1
                   );
                   rook.pieceMove(targetRookSpace, rookSpace);
                   this.selectedPiece = rook;
@@ -468,41 +482,86 @@ class Board {
           // KingSide Castling Logic
           // Simple for now, if no pieces in between, and king and rook have not moved,
           // Light up i + 2 square, if clicked, move rook to i, king to i + 1
-          let rookSpace = this.getSpaceByIJ(
-            selectedSpace.i,
-            selectedSpace.j + 3
-          );
+          if (this.selectedPiece.hasCastled === false) {
+            let rookSpace = this.getSpaceByIJ(
+              selectedSpace.i,
+              selectedSpace.j + 3
+            );
 
-          if (
-            this.selectedPiece.hasMoved === false &&
-            rookSpace.piece !== null &&
-            rookSpace.piece.type === "rook" &&
-            rookSpace.piece.color === this.selectedPiece.color &&
-            rookSpace.piece.hasMoved === false
-          ) {
-            let emptySpaces = true;
-            for (let i = selectedSpace.j + 1; i <= selectedSpace.j + 2; i++) {
-              const space = this.getSpaceByIJ(selectedSpace.i, i);
-              if (space.piece !== null) {
-                emptySpaces = false;
-                break;
+            if (
+              this.selectedPiece.hasMoved === false &&
+              rookSpace.piece !== null &&
+              rookSpace.piece.type === "rook" &&
+              rookSpace.piece.color === this.selectedPiece.color &&
+              rookSpace.piece.hasMoved === false
+            ) {
+              let emptySpaces = true;
+              for (let i = selectedSpace.j + 1; i <= selectedSpace.j + 2; i++) {
+                const space = this.getSpaceByIJ(selectedSpace.i, i);
+                if (space.piece !== null) {
+                  emptySpaces = false;
+                  break;
+                }
+              }
+
+              if (emptySpaces) {
+                // Light up the space for castling
+                const castleSpace = this.getSpaceByIJ(
+                  selectedSpace.i,
+                  selectedSpace.j + 2
+                );
+                this.selectedPiece.availableSpaces.push(castleSpace);
+                this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+                this.ctx.fillRect(
+                  (castleSpace.j - 1) * castleSpace.width,
+                  (castleSpace.i - 1) * castleSpace.height,
+                  castleSpace.width,
+                  castleSpace.height
+                );
               }
             }
+          }
 
-            if (emptySpaces) {
-              // Light up the space for castling
-              const castleSpace = this.getSpaceByIJ(
-                selectedSpace.i,
-                selectedSpace.j + 2
-              );
-              this.selectedPiece.availableSpaces.push(castleSpace);
-              this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
-              this.ctx.fillRect(
-                (castleSpace.j - 1) * castleSpace.width,
-                (castleSpace.i - 1) * castleSpace.height,
-                castleSpace.width,
-                castleSpace.height
-              );
+          // QueenSide Castling Logic
+          if (this.selectedPiece.hasCastled === false) {
+            let rookSpace = this.getSpaceByIJ(
+              selectedSpace.i,
+              selectedSpace.j - 4
+            );
+
+            console.log(rookSpace);
+
+            if (
+              this.selectedPiece.hasMoved === false &&
+              rookSpace.piece !== null &&
+              rookSpace.piece.type === "rook" &&
+              rookSpace.piece.color === this.selectedPiece.color &&
+              rookSpace.piece.hasMoved === false
+            ) {
+              let emptySpaces = true;
+              for (let i = selectedSpace.j - 1; i >= selectedSpace.j - 3; i--) {
+                const space = this.getSpaceByIJ(selectedSpace.i, i);
+                if (space.piece !== null) {
+                  emptySpaces = false;
+                  break;
+                }
+              }
+
+              if (emptySpaces) {
+                // Light up the space for castling
+                const castleSpace = this.getSpaceByIJ(
+                  selectedSpace.i,
+                  selectedSpace.j - 2
+                );
+                this.selectedPiece.availableSpaces.push(castleSpace);
+                this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+                this.ctx.fillRect(
+                  (castleSpace.j - 1) * castleSpace.width,
+                  (castleSpace.i - 1) * castleSpace.height,
+                  castleSpace.width,
+                  castleSpace.height
+                );
+              }
             }
           }
 
