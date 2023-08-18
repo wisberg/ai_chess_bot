@@ -9,8 +9,21 @@ class Piece {
     this.canvas = this.ctx.canvas;
     this.isActive = false;
     this.availableSpaces = [];
-    this.hasMoved = false;
-    this.hasCastled = false;
+    this.setProperties();
+  }
+
+  setProperties() {
+    switch (this.type) {
+      case "pawn":
+        this.hasMovedDouble = false;
+        break;
+      case "king":
+        this.hasMoved = false;
+        this.hasCastled = false;
+        break;
+      case "rook":
+        this.hasMoved = false;
+    }
   }
 
   updatePosition(x, y) {

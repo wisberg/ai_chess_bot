@@ -529,8 +529,6 @@ class Board {
               selectedSpace.j - 4
             );
 
-            console.log(rookSpace);
-
             if (
               this.selectedPiece.hasMoved === false &&
               rookSpace.piece !== null &&
