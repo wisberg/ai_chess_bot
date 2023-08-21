@@ -9,6 +9,7 @@ class Board {
     this.createBoard();
     this.pieceToMove = "white";
     this.canvas.addEventListener("click", (event) => this.handleClick(event));
+    this.turnNumber = 1;
   }
 
   resetBoard() {
@@ -47,7 +48,6 @@ class Board {
               if (this.selectedPiece.availableSpaces.includes(clickedSpace)) {
                 this.selectedPiece.pieceMove(clickedSpace, oldSpace);
                 this.selectedPiece.hasMoved = true;
-                this.switchPieceToMove();
                 this.selectedPiece = null;
                 this.reDrawBoard();
               }
@@ -55,8 +55,16 @@ class Board {
             }
           } else {
             if (this.selectedPiece.availableSpaces.includes(clickedSpace)) {
-              this.switchPieceToMove();
               this.selectedPiece.pieceMove(clickedSpace, oldSpace);
+              if (this.selectedPiece.type === "pawn") {
+                if (
+                  clickedSpace.i === oldSpace.i - 2 ||
+                  clickedSpace.i === oldSpace.i + 2
+                ) {
+                  this.selectedPiece.hasMovedDouble = true;
+                  this.turnMovedTwice = this.turnNumber;
+                }
+              }
               if (this.selectedPiece.type === "king") {
                 if (clickedSpace.j === oldSpace.j + 2) {
                   this.selectedPiece.hasCastled = true;
@@ -94,6 +102,7 @@ class Board {
           }
         }
       }
+      this.switchPieceToMove();
     }
   }
 
@@ -103,6 +112,7 @@ class Board {
     } else {
       this.pieceToMove = "white";
     }
+    this.turnNumber += 1;
   }
 
   showAvailableSpaces() {
@@ -174,6 +184,68 @@ class Board {
                 targetSpace.width,
                 targetSpace.height
               );
+            }
+
+            let enpassantSpaces = [
+              this.getSpaceByIJ(initialSpace.i, initialSpace.j + 1),
+              this.getSpaceByIJ(initialSpace.i, initialSpace.j - 1),
+            ];
+
+            for (let i = 0; i < enpassantSpaces.length; i++) {
+              console.log(enpassantSpaces[i].piece);
+              if (enpassantSpaces[i].piece) {
+                if (
+                  enpassantSpaces[i].piece.type === "pawn" &&
+                  enpassantSpaces[i].piece.color !== this.selectedPiece.color &&
+                  enpassantSpaces[i].piece.hasMovedDouble === true &&
+                  enpassantSpaces[i].piece.turnMovedTwice ===
+                    this.turnNumber - 1
+                ) {
+                  //Allow enpassant
+                  let enpassantSpace = null;
+                  if (this.selectedPiece.color === "white") {
+                    if (i === 0) {
+                      enpassantSpace = this.getSpaceByIJ(
+                        initialSpace.i - 1,
+                        initialSpace.j + 1
+                      );
+                      this.selectedPiece.availableSpaces.push(enpassantSpace);
+                    }
+
+                    if (i === 1) {
+                      enpassantSpace = this.getSpaceByIJ(
+                        initialSpace.i - 1,
+                        initialSpace.j - 1
+                      );
+                      this.selectedPiece.availableSpaces.push(enpassantSpace);
+                    }
+                  } else {
+                    if (i === 0) {
+                      enpassantSpace = this.getSpaceByIJ(
+                        initialSpace.i + 1,
+                        initialSpace.j + 1
+                      );
+                      this.selectedPiece.availableSpaces.push(enpassantSpace);
+                    }
+
+                    if (i === 1) {
+                      enpassantSpace = this.getSpaceByIJ(
+                        initialSpace.i + 1,
+                        initialSpace.j - 1
+                      );
+                      this.selectedPiece.availableSpaces.push(enpassantSpace);
+                    }
+                  }
+
+                  this.ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+                  this.ctx.fillRect(
+                    (enpassantSpace.j - 1) * enpassantSpace.width,
+                    (enpassantSpace.i - 1) * enpassantSpace.height,
+                    enpassantSpace.width,
+                    enpassantSpace.height
+                  );
+                }
+              }
             }
           }
           break;

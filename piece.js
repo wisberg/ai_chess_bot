@@ -16,6 +16,7 @@ class Piece {
     switch (this.type) {
       case "pawn":
         this.hasMovedDouble = false;
+        this.turnMovedTwice = 0;
         break;
       case "king":
         this.hasMoved = false;
